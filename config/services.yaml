@@ -1,0 +1,24 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+    
+    Sylius\AbandonedCartPlugin\StateMachine\CanReturnToCartGuard:
+        public: true # Has to be public to be used in Winzou SM callbacks
+    
+    Sylius\AbandonedCartPlugin\StateMachine\CancelLastPayment:
+        public: true # Has to be public to be used in Winzou SM callbacks
+    
+    Sylius\AbandonedCartPlugin\StateMachine\RestartShipments:
+        public: true # Has to be public to be used in Winzou SM callbacks
+    
+    Sylius\AbandonedCartPlugin\Controller\Shop\ReturnOrderToCartAction:
+        tags: ['controller.service_arguments']
+    
+    Sylius\AbandonedCartPlugin\Controller\Shop\UseCartAction:
+        tags: ['controller.service_arguments']
+    
+    Sylius\AbandonedCartPlugin\MenuListener\ShopAccountMenuListener:
+        tags:
+            - { name: kernel.event_listener, event: sylius.menu.shop.account, method: addAccountMenuItem }

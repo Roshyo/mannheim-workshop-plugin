@@ -1,0 +1,3 @@
+imports:
+    - { resource: '@SyliusAbandonedCartPlugin/config/state_machine.yaml'}
+    - { resource: '@SyliusAbandonedCartPlugin/config/sylius_grid.yaml'}

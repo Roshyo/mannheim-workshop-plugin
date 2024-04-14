@@ -1,0 +1,61 @@
+winzou_state_machine:
+    sylius_order:
+        transitions:
+            return_to_cart:
+                from: [ new ]
+                to: cart
+        callbacks:
+            guard:
+                can_return_to_cart:
+                    on: ["return_to_cart"]
+                    do: ["@Sylius\\AbandonedCartPlugin\\StateMachine\\CanReturnToCartGuard", "__invoke"]
+                    args: ["object"]
+            after:
+                restart_payment_state:
+                    on: ["return_to_cart"]
+                    do: ["@sm.callback.cascade_transition", "apply"]
+                    args: ["object", "event", "'restart'", "'sylius_order_payment'"]
+                restart_shipping_state:
+                    on: ["return_to_cart"]
+                    do: ["@sm.callback.cascade_transition", "apply"]
+                    args: ["object", "event", "'restart'", "'sylius_order_shipping'"]
+                restart_checkout_state:
+                    on: ["return_to_cart"]
+                    do: ["@sm.callback.cascade_transition", "apply"]
+                    args: ["object", "event", "'restart'", "'sylius_order_checkout'"]
+
+    sylius_order_checkout:
+        transitions:
+            restart:
+                from: [ completed ]
+                to: cart
+    
+    sylius_order_payment:
+        transitions:
+            restart:
+                from: [ awaiting_payment ]
+                to: cart
+        callbacks:
+            before:
+                cancel_last_payment:
+                    on: ["restart"]
+                    do: ["@Sylius\\AbandonedCartPlugin\\StateMachine\\CancelLastPayment", "__invoke"]
+                    args: ["object"]
+    
+    sylius_order_shipping:
+        transitions:
+            restart:
+                from: [ ready ]
+                to: cart
+        callbacks:
+            after:
+                restart_last_shipment:
+                    on: ["restart"]
+                    do: ["@Sylius\\AbandonedCartPlugin\\StateMachine\\RestartShipments", "__invoke"]
+                    args: ["object"]
+    
+    sylius_shipment:
+        transitions:
+            restart:
+                from: [ ready ]
+                to: cart

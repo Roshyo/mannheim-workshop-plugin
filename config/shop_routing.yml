@@ -1,1 +1,35 @@
+sylius_abandoned_cart_shop_order_restart_checkout:
+    path: /account/orders/{tokenValue}/restart-checkout
+    methods: [GET]
+    controller: Sylius\AbandonedCartPlugin\Controller\Shop\ReturnOrderToCartAction
+    requirements:
+        tokenValue: .+
 
+sylius_abandoned_cart_shop_account_carts:
+    path: /account/carts
+    methods: [GET]
+    defaults:
+        _controller: sylius.controller.order::indexAction
+        _sylius:
+            section: shop_account
+            template: "@SyliusShop/Account/Order/index.html.twig"
+            grid: sylius_abandoned_cart_shop_account_carts
+    
+sylius_abandoned_cart_shop_cart_use:
+    path: /account/carts/{id}/use
+    methods: [GET]
+    controller: Sylius\AbandonedCartPlugin\Controller\Shop\UseCartAction
+    
+sylius_abandoned_cart_shop_account_cart_show:
+    path: /account/carts/{id}/show
+    methods: [GET]
+    defaults:
+        _controller: sylius.controller.order::showAction
+        _sylius:
+            section: shop_account
+            template: "@SyliusAbandonedCartPlugin/Shop/Account/Cart/show.html.twig"
+            repository:
+                method: findOneByIdAndCustomer
+                arguments:
+                    - $id
+                    - "expr:service('sylius.context.customer').getCustomer()"
